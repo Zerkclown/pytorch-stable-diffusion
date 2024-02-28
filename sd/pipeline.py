@@ -3,8 +3,10 @@ import numpy as np
 from tqdm import tqdm
 from ddpm import DDPMSampler
 
-WIDTH = 512
-HEIGHT = 512
+# WIDTH = 512
+# HEIGHT = 512
+WIDTH = 128
+HEIGHT = 128
 LATENTS_WIDTH = WIDTH // 8
 LATENTS_HEIGHT = HEIGHT // 8
 
@@ -79,6 +81,10 @@ def generate(
             raise ValueError("Unknown sampler value %s. ")
 
         latents_shape = (1, 4, LATENTS_HEIGHT, LATENTS_WIDTH)
+        # latents_shape = (1, 1, LATENTS_HEIGHT, LATENTS_WIDTH)
+
+        # print("input_image (type): ", type(input_image))
+        # print("input_image (shape): ", input_image.shape)
 
         if input_image:
             encoder = models["encoder"]
@@ -100,6 +106,10 @@ def generate(
             encoder_noise = torch.randn(latents_shape, generator=generator, device=device)
             # (Batch_Size, 4, Latents_Height, Latents_Width)
             latents = encoder(input_image_tensor, encoder_noise)
+            
+            return latents
+            print(f"z's shape: {latents.shape},\nz: {latents}")
+            # return latents ## testing return z
 
             # Add noise to the latents (the encoded input image)
             # (Batch_Size, 4, Latents_Height, Latents_Width)
@@ -129,7 +139,7 @@ def generate(
             # model_output is the predicted noise
             # (Batch_Size, 4, Latents_Height, Latents_Width) -> (Batch_Size, 4, Latents_Height, Latents_Width)
             model_output = diffusion(model_input, context, time_embedding)
-
+        
             if do_cfg:
                 output_cond, output_uncond = model_output.chunk(2)
                 model_output = cfg_scale * (output_cond - output_uncond) + output_uncond
@@ -141,6 +151,10 @@ def generate(
 
         decoder = models["decoder"]
         decoder.to(device)
+
+        print(f"z-prime's shape: {latents.shape},\nz-prime: {latents}")
+        # return latents ## testing return z-prime
+
         # (Batch_Size, 4, Latents_Height, Latents_Width) -> (Batch_Size, 3, Height, Width)
         images = decoder(latents)
         to_idle(decoder)
