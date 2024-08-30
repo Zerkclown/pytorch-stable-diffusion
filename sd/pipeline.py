@@ -92,6 +92,8 @@ def generate(
             encoder = models["encoder"]
             encoder.to(device)
 
+            # torch.save(encoder, '../Pickles/encoderModel.pth')
+
             input_image_tensor = input_image.resize((WIDTH, HEIGHT))
             # (Height, Width, Channel)
             input_image_tensor = np.array(input_image_tensor)
