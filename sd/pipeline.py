@@ -12,6 +12,8 @@ HEIGHT = 128
 LATENTS_WIDTH = WIDTH // 8
 LATENTS_HEIGHT = HEIGHT // 8
 
+FIRST_RUN = True
+
 def generate(
     prompt,
     uncond_prompt=None,
@@ -26,6 +28,7 @@ def generate(
     device=None,
     idle_device=None,
     tokenizer=None,
+    pickle_encoder=False,
 ):
     with torch.no_grad():
         if not 0 < strength <= 1:
@@ -92,7 +95,11 @@ def generate(
             encoder = models["encoder"]
             encoder.to(device)
 
-            # torch.save(encoder, '../Pickles/encoderModel.pth')
+            # print(pickle_encoder)
+            if pickle_encoder:
+                # print("SAVING ENCODER MODEL...")
+                torch.save(encoder, '../Pickles/encoderModel.pth')
+                # torch.save(encoder.state_dict(), '../Pickles/encoderCheckpoint.pth')
 
             input_image_tensor = input_image.resize((WIDTH, HEIGHT))
             # (Height, Width, Channel)
